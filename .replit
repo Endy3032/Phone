@@ -1,1 +1,1 @@
-run="deno run --allow-net --allow-read mod.ts"
+run="deno run --allow-net --allow-read --no-check mod.ts"
