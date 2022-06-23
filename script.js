@@ -11,21 +11,74 @@ showOverlay = (bgImage = null) => {
 }
 
 time = () => {
-  const date = new Date();
-  const timeMsg = `Bây giờ là ${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`;
+  const date = new Date()
+  const timeMsg = `Bây giờ là ${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`
   const overlay = showOverlay()
   overlay.innerText = timeMsg
-  countdown = setTimeout(time, 1000 - date.getMilliseconds());
+  countdown = setTimeout(time, 1000 - date.getMilliseconds())
+}
+
+capture = (video) => {
+  const w = video.videoWidth
+  const h = video.videoHeight
+  const canvas = document.createElement("canvas")
+  canvas.width = w
+  canvas.height = h
+  canvas.style.width = w
+  canvas.style.height = h
+  canvas.onclick = () => {
+    var newTab = window.open()
+    newTab.document.body.style.backgroundColor = "#000"
+    newTab.document.body.style.display = "flex"
+    newTab.document.body.style.justifyContent = "center"
+    newTab.document.body.style.alignItems = "center"
+    newTab.document.body.innerHTML = `<img src="${canvas.toDataURL("image/png")}">`
+  }
+  var ctx = canvas.getContext("2d")
+  ctx.drawImage(video, 0, 0, w, h)
+  return canvas
+}
+
+shoot = () => {
+  const video = document.querySelector("video")
+  const canvas = capture(video)
+
+  const close = document.createElement("button")
+  close.classList.add("closeButton")
+  close.innerText = "×"
+  close.onclick = () => document.querySelector(".image_modal").remove()
+
+  const modal = document.createElement("div")
+  modal.classList.add("image_modal")
+  modal.appendChild(close)
+  modal.appendChild(canvas)
+
+  document.querySelector("body").appendChild(modal)
 }
 
 cam = () => {
   document.querySelector(".camera").style.opacity = 1
-  showOverlay("url(Resources/camera.png)")
+  const overlay = showOverlay("url(Resources/camera.png)")
+
+  const video = document.createElement("video")
+  video.autoplay = true
+
+  const btn = document.createElement("button")
+  btn.classList.add("shoot")
+  btn.addEventListener("click", shoot)
+
+  overlay.appendChild(video)
+  overlay.appendChild(btn)
+
+  if (navigator.mediaDevices.getUserMedia)
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => console.log(err))
 }
 
 youtube = () => {
   const overlay = showOverlay()
-  overlay.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/HSsqzzuGTPo?controls=0&amp;start=5&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`
+  overlay.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/HSsqzzuGTPo?controls=0&ampstart=5&autoplay=1" allow="autoplay encrypted-media picture-in-picture" allowfullscreen></iframe>`
 }
 
 updateStatusbarTime = () => {
@@ -38,6 +91,8 @@ updateStatusbarTime()
 
 home = () => {
   document.querySelector(".camera").style.opacity = 0
+  const tracks = document.querySelector("video")
+  if (tracks) tracks.srcObject.getTracks().forEach(track => track.stop())
   const overlay = document.querySelector(".overlay")
   overlay.style.opacity = 0
   overlay.style.zIndex = 0
