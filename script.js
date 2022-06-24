@@ -81,6 +81,11 @@ youtube = () => {
   overlay.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/HSsqzzuGTPo?controls=0&ampstart=5&autoplay=1" allow="autoplay encrypted-media picture-in-picture" allowfullscreen></iframe>`
 }
 
+facebook = () => {
+  const overlay = showOverlay()
+  overlay.innerHTML = ""
+}
+
 updateStatusbarTime = () => {
   const date = new Date()
   const sbTime = document.querySelector(".status_bar .time span")
