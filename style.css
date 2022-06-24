@@ -10,10 +10,8 @@ body {
 }
 
 iframe {
-  width: 100%;
-  height: 100%;
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(90deg);
   top: 50%;
   left: 50%;
 }
@@ -40,8 +38,9 @@ iframe {
   left: 50%;
   height: 90%;
   aspect-ratio: 296/599;
-  background-image: url(Resources/iP8.svg);
+  background-image: url(Resources/iPhone.svg);
   background-size: cover;
+  transition: transform 0.5s cubic-bezier(.1,.3,.1,1);
 }
 
 .screen {
@@ -65,7 +64,7 @@ iframe {
   position: absolute;
   inset: 0px;
   z-index: -1;
-  background-image: url("Resources/wallpaper light.jpeg");
+  background-image: url("Resources/Wallpaper Light.jpeg");
   background-position: center;
   background-size: cover;
   transition: all 0.5s cubic-bezier(.1,.3,.1,1);
@@ -95,6 +94,8 @@ iframe {
 .grid {
   position: relative;
   display: grid;
+  padding: 0.5rem;
+  grid-row-gap: 0.75rem;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -106,6 +107,17 @@ iframe {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  border-radius: 25%;
+  margin: 0.75rem;
+  cursor: pointer;
+  transition: filter 0.25s cubic-bezier(.1,.3,.1,1);
+}
+
+.app_icon:active {
+  filter: brightness(80%);
 }
 
 .camera {
@@ -142,7 +154,7 @@ iframe {
   }
   
   .wallpaper {
-    background-image: url("Resources/wallpaper dark.jpeg");
+    background-image: url("Resources/Wallpaper Dark.jpeg");
   }
 }
 
@@ -180,7 +192,7 @@ video {
   transform: translate(-50%, -50%);
   position: absolute;
   left: 50%;
-  top: 87.5%;
+  top: 85%;
   height: 6%;
   aspect-ratio: 1;
   background-color: #fff;
@@ -194,9 +206,9 @@ video {
   background-color: #999;
 }
 
-canvas {
+.imgViewer {
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(130%);
   top: 40%;
   left: 50%;
 }
