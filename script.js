@@ -8,8 +8,13 @@ const defaultTransform = "translate(-50%, -50%)"
 showOverlay = (bgImage = null) => {
   const overlay = document.querySelector(".overlay")
   overlay.style.opacity = 1
-  overlay.style.zIndex = 99
-  if (bgImage) overlay.style.backgroundImage = bgImage
+  overlay.style.zIndex = 1
+  if (bgImage) {
+    const overlayImage = document.querySelector(".overlay-img")
+    overlayImage.style.backgroundImage = bgImage
+    overlayImage.style.zIndex = 2
+    overlayImage.style.opacity = 1
+  }
   return overlay
 }
 
@@ -57,6 +62,10 @@ home = () => {
   document.querySelector(".camera").style.opacity = 0
   const tracks = document.querySelector("video")
   if (tracks) tracks.srcObject.getTracks().forEach(track => track.stop())
+  const overlayImg = document.querySelector(".overlay-img")
+  overlayImg.style.backgroundImage = ""
+  overlayImg.style.zIndex = 0
+  overlayImg.style.opacity = 0
   const overlay = document.querySelector(".overlay")
   overlay.style.opacity = 0
   overlay.style.zIndex = 0
@@ -78,12 +87,12 @@ clock = () => {
   const timeMsg = `Bây giờ là ${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`
   const overlay = showOverlay()
   overlay.innerText = timeMsg
-  countdown = setTimeout(time, 1000 - date.getMilliseconds())
+  countdown = setTimeout(clock, 1000 - date.getMilliseconds())
 }
 
 camera = () => {
   document.querySelector(".camera").style.opacity = 1
-  const overlay = showOverlay("url(Resources/CamUI.png)")
+  const overlay = showOverlay("url('Resources/CamUI.png')")
 
   const video = document.createElement("video")
   video.autoplay = true
@@ -108,7 +117,4 @@ youtube = () => {
   overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/HSsqzzuGTPo?controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
-facebook = () => {
-  const overlay = showOverlay()
-  overlay.innerHTML = ""
-}
+facebook = () => showOverlay("url('Resources/FacebookUI.png')")
