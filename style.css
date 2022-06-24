@@ -64,7 +64,7 @@ iframe {
   position: absolute;
   inset: 0px;
   z-index: -1;
-  background-image: url("Resources/Wallpaper Light.jpeg");
+  background-image: url("Resources/WPLight.jpeg");
   background-position: center;
   background-size: cover;
   transition: all 0.5s cubic-bezier(.1,.3,.1,1);
@@ -154,7 +154,7 @@ iframe {
   }
   
   .wallpaper {
-    background-image: url("Resources/Wallpaper Dark.jpeg");
+    background-image: url("Resources/WPDark.jpeg");
   }
 }
 
