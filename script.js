@@ -95,6 +95,7 @@ home = () => {
   phone.style.transform = defaultTransform
 }
 
+
 document.querySelectorAll(".appIcon").forEach(icon => {
   const appName = Object.values(icon.classList).filter(a => a != "appIcon")[0]
   icon.onclick = () => eval(`${appName.toLowerCase()}()`)
@@ -150,7 +151,12 @@ photos = () => {
   }
   overlay.appendChild(imageGrid)
 }
-
+calendar = () => {
+  const overlay = showOverlay()
+  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<iframe src="https://calendar.google.com/calendar/embed?src=wangminh06%40gmail.com&ctz=Asia%2FHo_Chi_Minh" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
+}
 clock = () => {
   const date = new Date()
   const timeMsg = `${date.toLocaleString("vi", { weekday: "long", month: "long", day: "numeric" })}<br>${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`
@@ -162,7 +168,12 @@ clock = () => {
   overlay.innerHTML = timeMsg
   countdown = setTimeout(clock, 1000 - date.getMilliseconds())
 }
-
+maps = () => {
+  const overlay = showOverlay()
+  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1182221766608!2d106.64323191484392!3d10.802256492304005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175293ba359b30b%3A0x59afbf1ebed4423b!2zVGVreSBD4buZbmcgSMOyYQ!5e0!3m2!1svi!2s!4v1656086462690!5m2!1svi!2s" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
+}
 youtube = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
