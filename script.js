@@ -186,6 +186,39 @@ clock = () => {
   countdown = setTimeout(clock, 1000 - date.getMilliseconds())
 }
 
+weather = async () => {
+  const { data } = await axios.get(encodeURI("https://api.weatherapi.com/v1/forecast.json"), { params: { key: "3d35407e30c24f8eb3d102228212307", q: "Ho Chi Minh City,Vietnam", days: 1, aqi: "yes" } })
+  const { location } = data
+
+  const aqiRatings = [["Tốt", "Vừa", "Không tốt lắm", "Không tốt", "Tệ", "Độc hại"], ["Thấp", "Vừa", "Cao", "Rất cao"]]
+
+  const icon = `https:${data.current.condition.icon}`
+  const temp = data.current.temp_c
+  const feelsLike = data.current.feelslike_c
+  const minMax = [data.forecast.forecastday[0].day.mintemp_c, data.forecast.forecastday[0].day.maxtemp_c]
+  const pressure = data.current.pressure_mb
+  const humidity = data.current.humidity
+  const clouds = data.current.cloud
+  const wind = data.current.wind_kph
+  const gust = data.current.gust_kph
+  const visibility = data.current.vis_km
+  const sunrise = data.forecase.forecastday[0].astro.sunrise
+  const sunset = data.forecase.forecastday[0].astro.sunset
+  const uv = data.current.uv
+  const moonrise = data.forecase.forecastday[0].astro.moonrise
+  const moonset = data.forecase.forecastday[0].astro.moonset
+  const moonPhase = data.forecase.forecastday[0].astro.moon_phase
+  const moonIllumination = data.forecase.forecastday[0].astro.moon_illumination
+  const usEPA = aqiRatings[0][data.current.air_quality["us-epa-index"] - 1]
+  const ukDefra = aqiRatings[1][Math.ceil(data.current.air_quality["gb-defra-index"] / 3) - 1]
+  const co = data.current.air_quality.co.toFixed(1)
+  const o3 = data.current.air_quality.o3.toFixed(1)
+  const no2 = data.current.air_quality.no2.toFixed(1)
+  const so2 = data.current.air_quality.so2.toFixed(1)
+  const pm25 = data.current.air_quality.pm2_5.toFixed(1)
+  const pm10 = data.current.air_quality.pm10.toFixed(1)
+}
+
 maps = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
@@ -205,10 +238,40 @@ notes = () => {
   overlay.appendChild(photosText)
 }
 
-// contacts = () => {
-//   const overlay = showOverlay()
-//   overlay.innerHTML = `    `
-// }
+contacts = () => {
+  const overlay = showOverlay();
+  const calling = document.createElement("div")
+  calling.classList.add("calling")
+
+  const numberField = document.createElement("div")
+  numberField.classList.add("result")
+
+  const numberGrid = document.createElement("div")
+  numberGrid.classList.add("number", "d-grid")
+
+  for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) {
+    const numButton = document.createElement("button")
+    numButton.classList.add("btn")
+    numButton.value = num.toString()
+    numButton.innerText = num.toString()
+    numButton.onclick = () => numberField.innerText += numButton.value
+    numberGrid.appendChild(numButton)
+  }
+  const callButton = document.createElement("button")
+  callButton.classList.add("enter")
+  callButton.onclick = () => call()
+  callButton.innerText = "Call"
+
+  calling.appendChild(numberField)
+  calling.appendChild(numberGrid)
+  calling.appendChild(callButton)
+  overlay.appendChild(calling)
+}
+
+function call(){
+  var phnumber = document.querySelector(".result").innerText
+  console.log(phnumber);
+}
 
 facebook = () => showOverlay("url('Resources/FacebookUI.png')")
 

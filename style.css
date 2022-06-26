@@ -283,3 +283,8 @@ textarea:active, textarea:focus {
   outline: none;
   background-color: #0006
 }
+
+.number{
+  grid-template-columns: repeat(3 , 1fr);
+  grid-template-rows: repeat(4 , 1fr);
+}
