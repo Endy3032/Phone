@@ -48,6 +48,18 @@ showImage = (imageData, w, h, timestamp) => {
   document.querySelector("body").appendChild(modal)
 }
 
+showHeaderText = (text) => {
+  const header = document.createElement("span")
+  header.innerText = text
+  header.style.fontWeight = "bold"
+  header.style.position = "absolute"
+  header.style.top = "5%"
+  header.style.left = "50%"
+  header.style.transform = "translate(-50%, -50%)"
+  header.style.fontSize = "2rem"
+  return header
+}
+
 shoot = () => {
   const timestamp = (new Date).toLocaleString("default", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit", year: "2-digit" })
   const video = document.querySelector("video")
@@ -128,14 +140,7 @@ camera = () => {
 photos = () => {
   const overlay = showOverlay()
 
-  const photosText = document.createElement("span")
-  photosText.innerText = "Photos"
-  photosText.style.fontWeight = "bold"
-  photosText.style.position = "absolute"
-  photosText.style.top = "5%"
-  photosText.style.left = "50%"
-  photosText.style.transform = "translate(-50%, -50%)"
-  photosText.style.fontSize = "2rem"
+  const photosText = showHeaderText("Photos")
   overlay.appendChild(photosText)
   
   const images = JSON.parse(localStorage.getItem("images"))
@@ -151,12 +156,14 @@ photos = () => {
   }
   overlay.appendChild(imageGrid)
 }
+
 calendar = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
-  overlay.innerHTML = `<iframe src="https://calendar.google.com/calendar/embed?src=wangminh06%40gmail.com&ctz=Asia%2FHo_Chi_Minh" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
+  overlay.innerHTML = `<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23616161&ctz=Asia%2FHo_Chi_Minh&showNav=0&showTitle=0&showPrint=0&showCalendars=0&showTz=0&src=Zmdqb3I4cm5wdjlzM3Z0ZzdrcWJpaGV2OG9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%23F09300" style="border-width:0" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" frameborder="0" scrolling="no"></iframe>`
 }
+
 clock = () => {
   const date = new Date()
   const timeMsg = `${date.toLocaleString("vi", { weekday: "long", month: "long", day: "numeric" })}<br>${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`
@@ -168,17 +175,37 @@ clock = () => {
   overlay.innerHTML = timeMsg
   countdown = setTimeout(clock, 1000 - date.getMilliseconds())
 }
+
 maps = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1182221766608!2d106.64323191484392!3d10.802256492304005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175293ba359b30b%3A0x59afbf1ebed4423b!2zVGVreSBD4buZbmcgSMOyYQ!5e0!3m2!1svi!2s!4v1656086462690!5m2!1svi!2s" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
+
+notes = () => {
+  const overlay = showOverlay()
+  overlay.innerHTML = `<textarea class = "text-dark border border-white">`
+
+  const photosText = showHeaderText("Notes")
+  overlay.appendChild(photosText)
+
+}
+
+safari = () => {
+  const overlay = showOverlay()
+  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<div class="gcse-search"></div>`
+}
+
+
+facebook = () => showOverlay("url('Resources/FacebookUI.png')")
+
+
 youtube = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/HSsqzzuGTPo?controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
-
-facebook = () => showOverlay("url('Resources/FacebookUI.png')")
