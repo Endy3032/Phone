@@ -107,12 +107,22 @@ home = () => {
   phone.style.transform = defaultTransform
 }
 
-
 document.querySelectorAll(".appIcon").forEach(icon => {
   const appName = Object.values(icon.classList).filter(a => a != "appIcon")[0]
   icon.onclick = () => eval(`${appName.toLowerCase()}()`)
   icon.style.backgroundImage = `url("Resources/${appName.replace("_", " ")}.png")`
 })
+
+debounce = (cb, delay) => {
+  let timeout
+
+  return (...args) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => cb(...args), delay)
+  }
+}
+
+updateNote = debounce(text => localStorage.setItem("notes", text), 500)
 
 /* App Functions */
 camera = () => {
@@ -185,10 +195,28 @@ maps = () => {
 
 notes = () => {
   const overlay = showOverlay()
-  overlay.innerHTML = `<textarea>`
-
+  const noteBox = document.createElement("textarea")
+  noteBox.value = localStorage.getItem("notes") ?? ""
+  noteBox.classList.add("noteBox")
+  noteBox.addEventListener("input", e => updateNote(e.target.value))
+  
   const photosText = showHeaderText("Notes")
+  overlay.appendChild(noteBox)
   overlay.appendChild(photosText)
+}
+
+// contacts = () => {
+//   const overlay = showOverlay()
+//   overlay.innerHTML = `    `
+// }
+
+facebook = () => showOverlay("url('Resources/FacebookUI.png')")
+
+youtube = () => {
+  const overlay = showOverlay()
+  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/HSsqzzuGTPo?controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
 safari = () => {
@@ -205,15 +233,4 @@ safari = () => {
   const header = showHeaderText("Search")
   overlay.appendChild(header)
   overlay.appendChild(searchBar)
-}
-
-
-facebook = () => showOverlay("url('Resources/FacebookUI.png')")
-
-
-youtube = () => {
-  const overlay = showOverlay()
-  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
-  const style = window.getComputedStyle(document.querySelector(".screen"), null)
-  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/HSsqzzuGTPo?controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
