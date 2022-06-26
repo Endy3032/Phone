@@ -196,12 +196,9 @@ safari = () => {
   const searchBar = document.createElement("textarea")
   searchBar.addEventListener('keydown', (event) => {
     if (event.key === "Enter") {
-      const { value } = event.srcElement
-      const url = new URL(value)
-      console.log(url)
-      // if (value.substring(0, 7) == 'http://') {location.assign('//' + value.substring(7))}
-      // if (value.substring(0, 8) == 'https://') {location.assign('//' + value.substring(8))}
-      // else {location.assign("http://www.google.com/search?q=" + value);}
+      event.preventDefault()
+      const { value } = event.target
+      location.assign(/^https{0,1}:\/\//.test(value) ? `//${value.replace(/^https{0,1}:\/\//, "")}` : `//google.com/search?q=${value}`)
     }
   })
 
