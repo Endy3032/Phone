@@ -185,18 +185,29 @@ maps = () => {
 
 notes = () => {
   const overlay = showOverlay()
-  overlay.innerHTML = `<textarea class = "text-dark border border-white">`
+  overlay.innerHTML = `<textarea>`
 
   const photosText = showHeaderText("Notes")
   overlay.appendChild(photosText)
-
 }
 
 safari = () => {
   const overlay = showOverlay()
-  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
-  const style = window.getComputedStyle(document.querySelector(".screen"), null)
-  overlay.innerHTML = `<div class="gcse-search"></div>`
+  const searchBar = document.createElement("textarea")
+  searchBar.addEventListener('keydown', (event) => {
+    if (event.key === "Enter") {
+      const { value } = event.srcElement
+      const url = new URL(value)
+      console.log(url)
+      // if (value.substring(0, 7) == 'http://') {location.assign('//' + value.substring(7))}
+      // if (value.substring(0, 8) == 'https://') {location.assign('//' + value.substring(8))}
+      // else {location.assign("http://www.google.com/search?q=" + value);}
+    }
+  })
+
+  const header = showHeaderText("Search")
+  overlay.appendChild(header)
+  overlay.appendChild(searchBar)
 }
 
 
