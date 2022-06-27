@@ -279,7 +279,7 @@ youtube = () => {
   const overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
-  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/HSsqzzuGTPo?controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
+  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/jh9BwyJB51A?controls=0&start=0&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
 safari = () => {
