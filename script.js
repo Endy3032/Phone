@@ -1,5 +1,4 @@
 // const { data } = await axios.get(encodeURI("https://api.weatherapi.com/v1/forecast.json"), { params: { key: "3d35407e30c24f8eb3d102228212307", q: "Ho Chi Minh City,Vietnam", days: 1, aqi: "yes" } })
-
 var countdown
 var camRunning = false
 const phone = document.querySelector(".phone")
@@ -60,7 +59,7 @@ showHeaderText = (text) => {
   return header
 }
 
-shoot = () => {
+shoot = async () => {
   const timestamp = (new Date).toLocaleString("default", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit", year: "2-digit" })
   const video = document.querySelector("video")
   const w = video.videoWidth
@@ -70,17 +69,17 @@ shoot = () => {
   canvas.width = w
   canvas.height = h
 
-  var ctx = canvas.getContext("2d")
+  const ctx = canvas.getContext("2d")
   ctx.drawImage(video, 0, 0, w, h)
 
   if (w && h) {
-    const storage = JSON.parse(localStorage.getItem("images")) ?? {}
+    const storage = JSON.parse(await localforage.getItem("images")) ?? {}
     storage[timestamp] = {
       width: w,
       height: h,
       data: canvas.toDataURL("image/png")
     }
-    localStorage.setItem("images", JSON.stringify(storage))
+    localforage.setItem("images", JSON.stringify(storage))
   }
 
   showImage(canvas.toDataURL("image/png"), w, h, timestamp)
@@ -122,7 +121,7 @@ debounce = (cb, delay) => {
   }
 }
 
-updateNote = debounce(text => localStorage.setItem("notes", text), 500)
+updateNote = debounce(text => localforage.setItem("notes", text), 500)
 
 /* App Functions */
 camera = () => {
@@ -147,13 +146,13 @@ camera = () => {
       .catch(err => console.log(err))
 }
 
-photos = () => {
+photos = async () => {
   const overlay = showOverlay()
 
   const photosText = showHeaderText("Photos")
   overlay.appendChild(photosText)
   
-  const images = JSON.parse(localStorage.getItem("images"))
+  const images = JSON.parse(await localforage.getItem("images"))
   const imageGrid = document.createElement("div")
   imageGrid.classList.add("imageGrid")
   for (key of Object.keys(images)) {
@@ -226,10 +225,10 @@ maps = () => {
   overlay.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1182221766608!2d106.64323191484392!3d10.802256492304005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175293ba359b30b%3A0x59afbf1ebed4423b!2zVGVreSBD4buZbmcgSMOyYQ!5e0!3m2!1svi!2s!4v1656086462690!5m2!1svi!2s" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
-notes = () => {
+notes = async () => {
   const overlay = showOverlay()
   const noteBox = document.createElement("textarea")
-  noteBox.value = localStorage.getItem("notes") ?? ""
+  noteBox.value = await localforage.getItem("notes") ?? ""
   noteBox.classList.add("noteBox")
   noteBox.addEventListener("input", e => updateNote(e.target.value))
   
@@ -297,3 +296,4 @@ safari = () => {
   overlay.appendChild(header)
   overlay.appendChild(searchBar)
 }
+

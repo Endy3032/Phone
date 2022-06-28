@@ -214,6 +214,7 @@ video {
 .closeButton {
   transform: translate(-50%, -50%);
   position: absolute;
+  text-align: center;
   left: 50%;
   top: 85%;
   height: 6%;
