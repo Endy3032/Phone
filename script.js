@@ -267,9 +267,11 @@ contacts = () => {
   overlay.appendChild(calling)
 }
 
-function call(){
+call = () => {
   var phnumber = document.querySelector(".result").innerText
-  console.log(phnumber);
+  // phnumber
+  const overlay = showOverlay()
+  overlay.innerHTML = `<div> calling ${phnumber}</div>`
 }
 
 facebook = () => showOverlay("url('Resources/FacebookUI.png')")
