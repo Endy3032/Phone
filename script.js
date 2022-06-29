@@ -8,6 +8,12 @@ addEventListener("resize", () => {
   const iframe = document.querySelector("iframe")
   if (!iframe) return
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  console.log(Object.values(iframe.classList))
+  if (Object.values(iframe.classList).includes("noRotate")) {
+    iframe.width = style.getPropertyValue("width")
+    iframe.height = style.getPropertyValue("height")
+    return
+  }
   iframe.width = style.getPropertyValue("height")
   iframe.height = style.getPropertyValue("width")
 })
@@ -30,7 +36,7 @@ showOverlay = (bgImage = null) => {
   const date = new Date()
   const sbTime = document.querySelector(".statusBar .time span")
   sbTime.innerText = `${date.toLocaleTimeString("en", { hour12: false, hour: "numeric", minute: "numeric" })} ${date.toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}`
-  setInterval(updateStatusbarTime, date % (1000 * 60))
+  setTimeout(updateStatusbarTime, date % (1000 * 60))
 })()
 
 showImage = (imageData, w, h, timestamp) => {
