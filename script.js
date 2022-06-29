@@ -4,6 +4,14 @@ var camRunning = false
 const phone = document.querySelector(".phone")
 const defaultTransform = "translate(-50%, -50%)"
 
+addEventListener("resize", () => {
+  const iframe = document.querySelector("iframe")
+  if (!iframe) return
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  iframe.width = style.getPropertyValue("height")
+  iframe.height = style.getPropertyValue("width")
+})
+
 /* Utilities */
 showOverlay = (bgImage = null) => {
   const overlay = document.querySelector(".overlay")
@@ -216,6 +224,12 @@ weather = async () => {
   const so2 = data.current.air_quality.so2.toFixed(1)
   const pm25 = data.current.air_quality.pm2_5.toFixed(1)
   const pm10 = data.current.air_quality.pm10.toFixed(1)
+}
+
+calculator = () => {
+  const overlay = showOverlay()
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<iframe class="noRotate" src="./Resources/calc.html" style="border-width:0" width="${style.getPropertyValue("width")}" height="${style.getPropertyValue("height")}" frameborder="0" scrolling="no"></iframe>`
 }
 
 maps = () => {

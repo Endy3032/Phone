@@ -26,6 +26,10 @@ iframe {
   left: 50%;
 }
 
+iframe.noRotate {
+  transform: translate(-50%, -50%);
+}
+
 .background {
   background-image: url(https://anhdepfree.com/wp-content/uploads/2018/08/bo-hinh-nen-may-tinh-4k-cuc-dep.jpg);
   background-position: center;

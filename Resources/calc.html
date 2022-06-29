@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Document</title>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div class="h-[78%] w-[90%] rounded-[15px] bg-[#1E2430] absolute top-[50%] left-[50%] p-4 -translate-y-1/2 -translate-x-1/2">
+    <div class="field h-[18%] rounded-[10px] bg-[#2E3440] relative">
+      <span class="field-eq text-xl font-mono absolute top-0 w-full text-right p-3"></span>
+      <span class="field-text text-3xl font-mono absolute bottom-0 w-full text-right p-3">0</span>
+      <button class="w-6 h-6 rounded-full bg-[#3B4252] center m-4 text-l absolute top-0" onclick=getHist(this)>↑</button>
+      <button class="w-6 h-6 rounded-full bg-[#3B4252] center m-4 text-l absolute bottom-0" onclick=getHist(this)>↓</button>
+    </div>
+    <div class="keys"></div>
+  </div>
+  <script src="calc.js"></script>
+</body>
+</html>
