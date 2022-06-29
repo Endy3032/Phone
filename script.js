@@ -87,7 +87,7 @@ shoot = async () => {
   ctx.drawImage(video, 0, 0, w, h)
 
   if (w && h) {
-    const storage = JSON.parse(await localforage.getItem("images")) ?? {}
+    const storage = JSON.parse(await localforage.getItem("images") ?? {})
     storage[timestamp] = {
       width: w,
       height: h,
@@ -167,7 +167,7 @@ photos = async () => {
   const photosText = showHeaderText("Photos")
   overlay.appendChild(photosText)
   
-  const images = JSON.parse(await localforage.getItem("images"))
+  const images = JSON.parse(await localforage.getItem("images") ?? {})
   const imageGrid = document.createElement("div")
   imageGrid.classList.add("imageGrid")
   for (key of Object.keys(images)) {
@@ -319,15 +319,6 @@ call = () => {
   overlay.innerHTML = `<div> calling ${phnumber}</div>`
 }
 
-facebook = () => showOverlay("url('Resources/FacebookUI.png')")
-
-youtube = () => {
-  const overlay = showOverlay()
-  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
-  const style = window.getComputedStyle(document.querySelector(".screen"), null)
-  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/jh9BwyJB51A?controls=0&start=0&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
-}
-
 safari = () => {
   const overlay = showOverlay()
   const searchBar = document.createElement("textarea")
@@ -344,3 +335,20 @@ safari = () => {
   overlay.appendChild(searchBar)
 }
 
+facebook = () => showOverlay("url('Resources/FacebookUI.png')")
+
+youtube = () => {
+  const overlay = showOverlay()
+  phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
+  const style = window.getComputedStyle(document.querySelector(".screen"), null)
+  overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/jh9BwyJB51A?controls=0&start=0&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
+}
+
+settings = () => {
+  const overlay = showOverlay()
+  overlay.innerHTML = `<button onclick="localforage.removeItem('notes')">Clear notes</button>
+  <hr>
+  <button onclick="localforage.removeItem('images')">Clear images</button>
+  <hr>
+  <button onclick="localforage.removeItem('audios')">Clear audios</button>`
+}
