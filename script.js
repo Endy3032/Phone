@@ -122,7 +122,7 @@ home = () => {
 
 document.querySelectorAll(".appIcon").forEach(icon => {
   const appName = Object.values(icon.classList).filter(a => a != "appIcon")[0]
-  icon.onclick = () => eval(`${appName.toLowerCase()}()`)
+  icon.onclick = () => eval(`${appName.toLowerCase().replace("_", "")}()`)
   icon.style.backgroundImage = `url("Resources/${appName.replace("_", " ")}.png")`
 })
 
@@ -139,6 +139,8 @@ updateNote = debounce(text => localforage.setItem("notes", text), 500)
 
 /* App Functions */
 camera = () => {
+  if (!navigator.mediaDevices.getUserMedia) return
+
   document.querySelector(".camera").style.opacity = 1
   const overlay = showOverlay("url('Resources/CamUI.png')", true)
 
@@ -153,11 +155,10 @@ camera = () => {
 
   overlay.appendChild(video)
 
-  if (navigator.mediaDevices.getUserMedia)
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .then(() => camRunning = true)
-      .catch(err => console.log(err))
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => video.srcObject = stream)
+    .then(() => camRunning = true)
+    .catch(err => console.log(err))
 }
 
 photos = async () => {
@@ -255,6 +256,30 @@ notes = async () => {
   const photosText = showHeaderText("Notes")
   overlay.appendChild(noteBox)
   overlay.appendChild(photosText)
+}
+
+voicememos = () => {
+  if (!navigator.mediaDevices.getUserMedia) return
+
+  const overlay = showOverlay()
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+
+      const audioChunks = [];
+      mediaRecorder.addEventListener("dataavailable", event => {
+        audioChunks.push(event.data);
+      });
+
+      mediaRecorder.addEventListener("stop", () => {
+        const audioBlob = new Blob(audioChunks);
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+      });
+    })
 }
 
 contacts = () => {
