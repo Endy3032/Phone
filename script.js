@@ -310,13 +310,24 @@ contacts = () => {
   calling.appendChild(numberGrid)
   calling.appendChild(callButton)
   overlay.appendChild(calling)
+  
 }
 
 call = () => {
+
   var phnumber = document.querySelector(".result").innerText
   // phnumber
   const overlay = showOverlay()
-  overlay.innerHTML = `<div> calling ${phnumber}</div>`
+  overlay.innerHTML = `    <div class="callScreen position-absolute top-50 start-50 translate-middle">
+      <div class="callName">
+        ${phnumber}
+      </div>
+      <div id="timer_id" class="callTime">
+      </div>
+      <div class="callEnd">
+        <button onclick="projects.stop('timer_id')">END</button>
+      </div>`
+  
 }
 
 safari = () => {
@@ -352,3 +363,4 @@ settings = () => {
   <hr>
   <button onclick="localforage.removeItem('audios')">Clear audios</button>`
 }
+
