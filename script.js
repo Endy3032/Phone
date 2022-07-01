@@ -1,6 +1,7 @@
 // const { data } = await axios.get(encodeURI("https://api.weatherapi.com/v1/forecast.json"), { params: { key: "3d35407e30c24f8eb3d102228212307", q: "Ho Chi Minh City,Vietnam", days: 1, aqi: "yes" } })
 var countdown
 var camRunning = false
+var photosOpen = false
 const phone = document.querySelector(".phone")
 const defaultTransform = "translate(-50%, -50%)"
 
@@ -39,23 +40,43 @@ showOverlay = (bgImage = null) => {
   setTimeout(updateStatusbarTime, date % (1000 * 60))
 })()
 
-showImage = (imageData, w, h, timestamp) => {
+showImage = async (imageData, width, height, timestamp) => {
+  const storage = JSON.parse(await localforage.getItem("images")) ?? {}
+
   const image = document.createElement("a")
   image.classList.add("imgViewer")
-  image.style.width = `${w}px`
-  image.style.height = `${h}px`
+  image.style.width = `${width}px`
+  image.style.height = `${height}px`
   image.style.backgroundImage = `url("${imageData}")`
   if (timestamp) image.download = `captured ${timestamp}.png`
   image.href = imageData
 
   const close = document.createElement("button")
-  close.innerText = "×"
-  close.classList.add("closeButton")
-  close.onclick = () => document.querySelector(".imageModal").remove()
+  close.innerText = "Quay lại"
+  close.classList.add("imgViewerButton")
+  close.onclick = () => {
+    document.querySelector(".imageModal").remove()
+    storage[timestamp] = {
+      width, height,
+      data: imageData
+    }
+    localforage.setItem("images", JSON.stringify(storage))
+  }
+  
+  const del = document.createElement("button")
+  del.innerText = "Xóa"
+  del.classList.add("imgViewerButton", "delButton")
+  del.onclick = () => {
+    document.querySelector(".imageModal").remove()
+    delete storage[timestamp]
+    localforage.setItem("images", JSON.stringify(storage))
+      .then(() => {if (photosOpen) {home(); photos()}})
+  }
 
   const modal = document.createElement("div")
   modal.classList.add("imageModal")
   modal.appendChild(close)
+  modal.appendChild(del)
   modal.appendChild(image)
 
   document.querySelector("body").appendChild(modal)
@@ -73,7 +94,7 @@ showHeaderText = (text) => {
   return header
 }
 
-shoot = async () => {
+shoot = () => {
   const timestamp = (new Date).toLocaleString("default", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit", year: "2-digit" })
   const video = document.querySelector("video")
   const w = video.videoWidth
@@ -86,17 +107,7 @@ shoot = async () => {
   const ctx = canvas.getContext("2d")
   ctx.drawImage(video, 0, 0, w, h)
 
-  if (w && h) {
-    const storage = JSON.parse(await localforage.getItem("images") ?? {})
-    storage[timestamp] = {
-      width: w,
-      height: h,
-      data: canvas.toDataURL("image/png")
-    }
-    localforage.setItem("images", JSON.stringify(storage))
-  }
-
-  showImage(canvas.toDataURL("image/png"), w, h, timestamp)
+  if (w && h) showImage(canvas.toDataURL("image/png"), w, h, timestamp)
 }
 
 home = () => {
@@ -107,17 +118,14 @@ home = () => {
     camRunning = false
   }
   const overlayImg = document.querySelector(".overlayImg")
-  overlayImg.style.backgroundImage = ""
-  overlayImg.style.zIndex = 0
-  overlayImg.style.opacity = 0
+  overlayImg.removeAttribute("style")
+  overlayImg.innerHTML = ""
   const overlay = document.querySelector(".overlay")
-  overlay.style.opacity = 0
-  overlay.style.backgroundColor = ""
-  overlay.style.zIndex = 0
+  overlay.removeAttribute("style")
   overlay.innerHTML = ""
-  overlay.style.backgroundImage = "none"
   clearTimeout(countdown)
   phone.style.transform = defaultTransform
+  photosOpen = false
 }
 
 document.querySelectorAll(".appIcon").forEach(icon => {
@@ -162,12 +170,13 @@ camera = () => {
 }
 
 photos = async () => {
+  photosOpen = true
   const overlay = showOverlay()
 
-  const photosText = showHeaderText("Photos")
+  const photosText = showHeaderText("Ảnh")
   overlay.appendChild(photosText)
   
-  const images = JSON.parse(await localforage.getItem("images") ?? {})
+  const images = JSON.parse(await localforage.getItem("images")) ?? {}
   const imageGrid = document.createElement("div")
   imageGrid.classList.add("imageGrid")
   for (key of Object.keys(images)) {
@@ -253,15 +262,17 @@ notes = async () => {
   noteBox.classList.add("noteBox")
   noteBox.addEventListener("input", e => updateNote(e.target.value))
   
-  const photosText = showHeaderText("Notes")
+  const header = showHeaderText("Ghi Chú")
   overlay.appendChild(noteBox)
-  overlay.appendChild(photosText)
+  overlay.appendChild(header)
 }
 
 voicememos = () => {
   if (!navigator.mediaDevices.getUserMedia) return
 
   const overlay = showOverlay()
+
+  const header = showHeaderText("Ghi Âm")
 
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
@@ -304,7 +315,7 @@ contacts = () => {
   const callButton = document.createElement("button")
   callButton.classList.add("enter")
   callButton.onclick = () => call()
-  callButton.innerText = "Call"
+  callButton.innerText = "Gọi"
 
   calling.appendChild(numberField)
   calling.appendChild(numberGrid)
@@ -314,7 +325,6 @@ contacts = () => {
 }
 
 call = () => {
-
   var phnumber = document.querySelector(".result").innerText
   // phnumber
   const overlay = showOverlay()
@@ -325,7 +335,7 @@ call = () => {
       <div id="timer_id" class="callTime">
       </div>
       <div class="callEnd">
-        <button onclick="projects.stop('timer_id')">END</button>
+        <button onclick="projects.stop('timer_id')">Kết Thúc</button>
       </div>`
   
 }
@@ -341,7 +351,7 @@ safari = () => {
     }
   })
 
-  const header = showHeaderText("Search")
+  const header = showHeaderText("Tìm Kiếm")
   overlay.appendChild(header)
   overlay.appendChild(searchBar)
 }
@@ -357,10 +367,15 @@ youtube = () => {
 
 settings = () => {
   const overlay = showOverlay()
-  overlay.innerHTML = `<button onclick="localforage.removeItem('notes')">Clear notes</button>
+  overlay.style.display = "flex"
+  overlay.style.flexDirection = "column"
+  overlay.style.alignItems = "center"
+  overlay.style.justifyContent = "center"
+  overlay.innerHTML = `
+  <button onclick="localforage.removeItem('notes')">Xóa Ghi Chú</button>
   <hr>
-  <button onclick="localforage.removeItem('images')">Clear images</button>
+  <button onclick="localforage.removeItem('images')">Xóa Hình Ảnh</button>
   <hr>
-  <button onclick="localforage.removeItem('audios')">Clear audios</button>`
+  <button onclick="localforage.removeItem('audios')">Xóa Ghi Âm</button>`
 }
 
