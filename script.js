@@ -427,15 +427,14 @@ youtube = () => {
 
 settings = () => {
   overlay = showOverlay()
+  overlay.style.padding = "50% 0"
   overlay.style.display = "flex"
   overlay.style.flexDirection = "column"
   overlay.style.alignItems = "center"
-  overlay.style.justifyContent = "center"
+  overlay.style.justifyContent = "space-around"
   overlay.innerHTML = `
   <button onclick="localforage.removeItem('notes')">Xóa Ghi Chú</button>
-  <hr>
   <button onclick="localforage.removeItem('images')">Xóa Hình Ảnh</button>
-  <hr>
   <button onclick="localforage.removeItem('audios')">Xóa Ghi Âm</button>`
 }
 
