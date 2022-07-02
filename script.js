@@ -1,7 +1,5 @@
 // const { data } = await axios.get(encodeURI("https://api.weatherapi.com/v1/forecast.json"), { params: { key: "3d35407e30c24f8eb3d102228212307", q: "Ho Chi Minh City,Vietnam", days: 1, aqi: "yes" } })
-var countdown
-var camRunning = false
-var photosOpen = false
+var timer, stream, overlay, audioRecorder, mediaAppOpen = false
 const phone = document.querySelector(".phone")
 const defaultTransform = "translate(-50%, -50%)"
 
@@ -21,7 +19,7 @@ addEventListener("resize", () => {
 
 /* Utilities */
 showOverlay = (bgImage = null) => {
-  const overlay = document.querySelector(".overlay")
+  overlay = document.querySelector(".overlay")
   overlay.style.opacity = 1
   overlay.style.zIndex = 1
   if (bgImage) {
@@ -70,7 +68,7 @@ showImage = async (imageData, width, height, timestamp) => {
     document.querySelector(".imageModal").remove()
     delete storage[timestamp]
     localforage.setItem("images", JSON.stringify(storage))
-      .then(() => {if (photosOpen) {home(); photos()}})
+      .then(() => {if (mediaAppOpen) {home(); photos()}})
   }
 
   const modal = document.createElement("div")
@@ -110,22 +108,73 @@ shoot = () => {
   if (w && h) showImage(canvas.toDataURL("image/png"), w, h, timestamp)
 }
 
-home = () => {
+record = async () => {
+  const audios = JSON.parse(await localforage.getItem("audios")) ?? {}
+  const timestamp = (new Date).toLocaleString("default", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit", year: "2-digit" })
+
+  const stopwatch = document.createElement("span")
+  stopwatch.classList.add("stopwatch")
+  stopwatch.innerText = "00:00:0"
+  stopwatch.style.position = "absolute"
+  stopwatch.style.top = "50%"
+  stopwatch.style.left = "50%"
+  stopwatch.style.transform = "translate(-50%, -50%)"
+  stopwatch.style.fontSize = "2rem"
+
+  const rec = document.querySelector(".record")
+  rec.style.borderRadius = "25%"
+  rec.style.height = "1rem"
+  
+  timer = setInterval(() => {
+    var [m, s, ms] = stopwatch.innerText.split(":").map(a => parseInt(a))
+    ms++
+    if (ms >= 10) {s++; ms = 0}
+    if (s >= 60) {m++; s = 0}
+    stopwatch.innerText = `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}:${ms}`
+  }, 100)
+
+  overlay.appendChild(stopwatch)
+  
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(strm => {
+      stream = strm
+      audioRecorder = new MediaRecorder(stream)
+      audioRecorder.start()
+
+      audioRecorder.addEventListener("dataavailable", event => {
+        let reader = new FileReader()
+        reader.onloadend = async () => {
+          audios[timestamp] = { data: reader.result }
+          await localforage.setItem("audios", JSON.stringify(audios))
+        }
+        reader.readAsDataURL(event.data)
+      })
+
+      rec.onclick = async () => {
+        audioRecorder.stop()
+        stream.getTracks().forEach(track => track.stop())
+
+        const rec = document.querySelector(".record")
+        rec.removeAttribute("style")
+        rec.onclick = () => record()
+
+        stopwatch.remove()
+      }
+    })
+}
+
+function home() {
   document.querySelector(".camera").style.opacity = 0
-  const tracks = document.querySelector("video")
-  if (camRunning) {
-    tracks.srcObject.getTracks().forEach(track => track.stop())
-    camRunning = false
-  }
+  if (stream) stream.getTracks().forEach(track => track.stop())
   const overlayImg = document.querySelector(".overlayImg")
   overlayImg.removeAttribute("style")
   overlayImg.innerHTML = ""
-  const overlay = document.querySelector(".overlay")
+  overlay = document.querySelector(".overlay")
   overlay.removeAttribute("style")
   overlay.innerHTML = ""
-  clearTimeout(countdown)
+  clearTimeout(timer)
   phone.style.transform = defaultTransform
-  photosOpen = false
+  mediaAppOpen = false
 }
 
 document.querySelectorAll(".appIcon").forEach(icon => {
@@ -150,7 +199,7 @@ camera = () => {
   if (!navigator.mediaDevices.getUserMedia) return
 
   document.querySelector(".camera").style.opacity = 1
-  const overlay = showOverlay("url('Resources/CamUI.png')", true)
+  overlay = showOverlay("url('Resources/CamUI.png')", true)
 
   const video = document.createElement("video")
   video.autoplay = true
@@ -164,14 +213,13 @@ camera = () => {
   overlay.appendChild(video)
 
   navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => video.srcObject = stream)
-    .then(() => camRunning = true)
+    .then(strm => {stream = strm; video.srcObject = stream})
     .catch(err => console.log(err))
 }
 
 photos = async () => {
-  photosOpen = true
-  const overlay = showOverlay()
+  mediaAppOpen = true
+  overlay = showOverlay()
 
   const photosText = showHeaderText("Ảnh")
   overlay.appendChild(photosText)
@@ -191,7 +239,7 @@ photos = async () => {
 }
 
 calendar = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23616161&ctz=Asia%2FHo_Chi_Minh&showNav=0&showTitle=0&showPrint=0&showCalendars=0&showTz=0&src=Zmdqb3I4cm5wdjlzM3Z0ZzdrcWJpaGV2OG9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%23F09300" style="border-width:0" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" frameborder="0" scrolling="no"></iframe>`
@@ -200,13 +248,13 @@ calendar = () => {
 clock = () => {
   const date = new Date()
   const timeMsg = `${date.toLocaleString("vi", { weekday: "long", month: "long", day: "numeric" })}<br>${date.toLocaleString("vi", { hour: "numeric", minute: "numeric", second: "numeric" })}`
-  const overlay = showOverlay()
+  overlay = showOverlay()
   overlay.style.display = "flex"
   overlay.style.alignItems = "center"
   overlay.style.justifyContent = "center"
   overlay.style.backgroundColor = "#0008"
   overlay.innerHTML = timeMsg
-  countdown = setTimeout(clock, 1000 - date.getMilliseconds())
+  timer = setTimeout(clock, 1000 - date.getMilliseconds())
 }
 
 weather = async () => {
@@ -243,20 +291,20 @@ weather = async () => {
 }
 
 calculator = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe class="noRotate" src="./Resources/calc.html" style="border-width:0" width="${style.getPropertyValue("width")}" height="${style.getPropertyValue("height")}" frameborder="0" scrolling="no"></iframe>`
 }
 
 maps = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1182221766608!2d106.64323191484392!3d10.802256492304005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175293ba359b30b%3A0x59afbf1ebed4423b!2zVGVreSBD4buZbmcgSMOyYQ!5e0!3m2!1svi!2s!4v1656086462690!5m2!1svi!2s" controls=0&start=5&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
 notes = async () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   const noteBox = document.createElement("textarea")
   noteBox.value = await localforage.getItem("notes") ?? ""
   noteBox.classList.add("noteBox")
@@ -270,31 +318,19 @@ notes = async () => {
 voicememos = () => {
   if (!navigator.mediaDevices.getUserMedia) return
 
-  const overlay = showOverlay()
+  overlay = showOverlay()
 
   const header = showHeaderText("Ghi Âm")
+  overlay.appendChild(header)
 
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.start();
-
-      const audioChunks = [];
-      mediaRecorder.addEventListener("dataavailable", event => {
-        audioChunks.push(event.data);
-      });
-
-      mediaRecorder.addEventListener("stop", () => {
-        const audioBlob = new Blob(audioChunks);
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audio.play();
-      });
-    })
+  const btn = document.createElement("button")
+  btn.onclick = () => record()
+  btn.classList.add("record")
+  overlay.appendChild(btn)
 }
 
 contacts = () => {
-  const overlay = showOverlay();
+  overlay = showOverlay();
   const calling = document.createElement("div")
   calling.classList.add("calling")
 
@@ -320,14 +356,13 @@ contacts = () => {
   calling.appendChild(numberField)
   calling.appendChild(numberGrid)
   calling.appendChild(callButton)
-  overlay.appendChild(calling)
-  
+  overlay.appendChild(calling)  
 }
 
 call = () => {
   var phnumber = document.querySelector(".result").innerText
   // phnumber
-  const overlay = showOverlay()
+  overlay = showOverlay()
   overlay.innerHTML = `    <div class="callScreen position-absolute top-50 start-50 translate-middle">
       <div class="callName">
         ${phnumber}
@@ -340,8 +375,33 @@ call = () => {
   
 }
 
+music = async () => {
+  mediaAppOpen = true
+  overlay = showOverlay()
+
+  const header = showHeaderText("Nhạc")
+  overlay.appendChild(header)
+
+  const player = document.createElement("audio")
+  player.setAttribute("controls", "true")
+  player.classList.add("audioPlayer")
+
+  const audios = JSON.parse(await localforage.getItem("audios")) ?? {}
+  const audioList = document.createElement("div")
+  audioList.classList.add("audioList")
+  for (key of Object.keys(audios)) {
+    const { data } = audios[key]
+    const play = document.createElement("button")
+    play.innerText = key
+    play.onclick = () => player.src = data
+    audioList.appendChild(play)
+  }
+  overlay.appendChild(audioList)
+  overlay.appendChild(player)
+}
+
 safari = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   const searchBar = document.createElement("textarea")
   searchBar.addEventListener('keydown', (event) => {
     if (event.key === "Enter") {
@@ -359,14 +419,14 @@ safari = () => {
 facebook = () => showOverlay("url('Resources/FacebookUI.png')")
 
 youtube = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   phone.style.transform = `${defaultTransform} rotate(-90deg) scale(150%)`
   const style = window.getComputedStyle(document.querySelector(".screen"), null)
   overlay.innerHTML = `<iframe src="https://www.youtube.com/embed/jh9BwyJB51A?controls=0&start=0&autoplay=1" allow="autoplay" width="${style.getPropertyValue("height")}" height="${style.getPropertyValue("width")}" allowfullscreen></iframe>`
 }
 
 settings = () => {
-  const overlay = showOverlay()
+  overlay = showOverlay()
   overlay.style.display = "flex"
   overlay.style.flexDirection = "column"
   overlay.style.alignItems = "center"
