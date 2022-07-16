@@ -1,8 +1,4 @@
-var timer,
-  stream,
-  overlay,
-  audioRecorder,
-  mediaAppOpen = false;
+let timer, stream, overlay, audioRecorder, mediaAppOpen = false;
 const phone = document.querySelector(".phone");
 const defaultTransform = "translate(-50%, -50%)";
 
@@ -161,7 +157,7 @@ record = async () => {
   rec.style.height = "1rem";
 
   timer = setInterval(() => {
-    var [m, s, ms] = stopwatch.innerText.split(":").map((a) => parseInt(a));
+    let [m, s, ms] = stopwatch.innerText.split(":").map((a) => parseInt(a));
     ms++;
     if (ms >= 10) {
       s++;
@@ -184,7 +180,7 @@ record = async () => {
     audioRecorder.start();
 
     audioRecorder.addEventListener("dataavailable", (event) => {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onloadend = async () => {
         audios[timestamp] = { data: reader.result };
         await localforage.setItem("audios", JSON.stringify(audios));
@@ -192,7 +188,7 @@ record = async () => {
       reader.readAsDataURL(event.data);
     });
 
-    rec.onclick = async () => {
+    rec.onclick = () => {
       audioRecorder.stop();
       stream.getTracks().forEach((track) => track.stop());
 
@@ -488,7 +484,7 @@ contacts = () => {
   const numberGrid = document.createElement("div");
   numberGrid.classList.add("number", "d-grid");
 
-  for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) {
+  for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#"]) {
     const numButton = document.createElement("button");
     numButton.classList.add("btn");
     numButton.classList.add("fs-2");
@@ -509,19 +505,16 @@ contacts = () => {
 };
 
 call = () => {
-  var phnumber = document.querySelector(".result").innerText;
-  // phnumber
+  const phnumber = document.querySelector(".result").innerText;
   overlay = showOverlay();
-  overlay.innerHTML = `<div class="callScreen position-absolute top-50 start-50 translate-middle">  
-      <div>Calling ... </div>
-      <div class="callName">
-        ${phnumber}
-      </div>
-      <div id="timer_id" class="callTime">
-      </div>
-      <div class="callEnd">
-        <a onclick="home()"><img class="endd" src="Resources/end-call.png"></img></a>
-      </div>`;
+  overlay.innerHTML = `
+  <div class="callScreen position-absolute top-50 start-50 translate-middle">  
+    <div>Calling ${phnumber}... </div>
+    <div id="timer_id" class="callTime"></div>
+    <div class="callEnd">
+      <a onclick="home()"><img class="endd" src="Resources/end-call.png"></img></a>
+    </div>
+  </div>`;
 };
 
 music = async () => {

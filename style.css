@@ -299,7 +299,7 @@ textarea:active, textarea:focus {
   background-color: #0006
 }
 
-.number{
+.number {
   grid-template-columns: repeat(3 , 1fr);
   grid-template-rows: repeat(4 , 1fr);
 }
