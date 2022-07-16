@@ -491,6 +491,7 @@ contacts = () => {
   for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) {
     const numButton = document.createElement("button");
     numButton.classList.add("btn");
+    numButton.classList.add("fs-2");
     numButton.value = num.toString();
     numButton.innerText = num.toString();
     numButton.onclick = () => (numberField.innerText += numButton.value);
@@ -511,14 +512,15 @@ call = () => {
   var phnumber = document.querySelector(".result").innerText;
   // phnumber
   overlay = showOverlay();
-  overlay.innerHTML = `    <div class="callScreen position-absolute top-50 start-50 translate-middle">
+  overlay.innerHTML = `<div class="callScreen position-absolute top-50 start-50 translate-middle">  
+      <div>Calling ... </div>
       <div class="callName">
         ${phnumber}
       </div>
       <div id="timer_id" class="callTime">
       </div>
       <div class="callEnd">
-        <button onclick="projects.stop('timer_id')">Kết Thúc</button>
+        <a onclick="home()"><img class="endd" src="Resources/end-call.png"></img></a>
       </div>`;
 };
 
